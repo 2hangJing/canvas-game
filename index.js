@@ -28,7 +28,7 @@ let gameObj = {
 
         $(window).on('touchend', (e)=>{
 
-            this.boxConstSpeed = - (new Date().getTime() - this.touchTime) / 25;
+            this.boxConstSpeed = - (new Date().getTime() - this.touchTime) / 20;
 
             this.touchTime = 0;
         });
@@ -62,12 +62,12 @@ let gameObj = {
         console.log(this.obstacleArr);
     },
     calculation(){
-
+        
         //  下落速度总和
         this.boxSpeed += this.boxConstSpeed;
 
         //  下落加速度随着时间加大
-        this.boxConstSpeed += 0.3;
+        this.boxConstSpeed += 0.5;
 
         //  障碍物移动 X 轴速度
         for(let val of this.obstacleArr){
@@ -77,27 +77,30 @@ let gameObj = {
     },
     rendering(){
 
+        //  数据计算
         this.calculation();
 
+        let {winWidth, winHeight, boxSpeed, obstacleArr, ctx} = gameObj;
+
         //  重置画布
-        $('#canvas').attr({width : this.winWidth});
+        $('#canvas').attr({width : winWidth});
 
         //  box Y轴坐标
-        let boxY = this.winHeight/5 + this.boxSpeed;
+        let boxY = winHeight/5 + boxSpeed;
 
         //  障碍渲染
-        for(let val of this.obstacleArr){
+        for(let val of obstacleArr){
 
             //  障碍物 X 轴坐标
             let x = val.x + val.distance;
 
-            this.ctx.fillStyle="#000";
+            ctx.fillStyle="#000";
             
-            this.ctx.fillRect( x, 0, val.width, this.winHeight); 
+            ctx.fillRect( x, 0, val.width, winHeight); 
 
-            this.ctx.fillStyle="#fff";
+            ctx.fillStyle="#fff";
 
-            this.ctx.fillRect( x, val.allowY, val.width, val.allowHei);
+            ctx.fillRect( x, val.allowY, val.width, val.allowHei);
 
             //  判断是否碰触障碍物
             if(20 - val.width <= x && x <= 50){
@@ -113,24 +116,16 @@ let gameObj = {
 
         }
 
-        this.ctx.fillStyle="#000";
+        ctx.fillStyle="#000";
 
-        this.ctx.lineWidth = 1;
+        ctx.lineWidth = 1;
 
         //  box 
-        this.ctx.fillRect(20, boxY, 30, 30); 
+        ctx.fillRect(20, boxY, 30, 30); 
 
-        this.ctx.stroke();
-        
-        //  蓄力框
-        // this.ctx.rect( this.winWidth -100,this.winHeight/2,30,100);
+        ctx.stroke();
 
-        // this.ctx.fillRect(this.winWidth -100, this.winHeight/2 + 100 - this.touchTime*3, 30,this.touchTime * 3); 
-
-        setTimeout(()=>{
-
-            this.rendering();
-        },15);
+        requestAnimationFrame(this.rendering.bind(this));
     },
     
     init(){
